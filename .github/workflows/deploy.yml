@@ -10,12 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install dependencies and build
-        run: |
-          npm install
-          npm run build
+        uses: actions/checkout@v4
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
@@ -25,8 +20,21 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd web_proto
-            git pull origin main
-            npm install --production
+            # Entrar al home del usuario
+            cd ~
+            
+            # Si el proyecto no existe, clonarlo. Si existe, actualizarlo.
+            if [ ! -d "web_proto/.git" ]; then
+              rm -rf web_proto
+              git clone https://github.com/Ralarco/fullparnert-web.git web_proto
+            else
+              cd web_proto
+              git pull origin main
+            fi
+            
+            # Instalar y compilar
+            cd ~/web_proto
+            source ~/.bashrc # Carga nvm/node si está instalado
+            npm install
             npm run build
             touch tmp/restart.txt
