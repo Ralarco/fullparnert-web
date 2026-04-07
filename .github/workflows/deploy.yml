@@ -23,6 +23,7 @@ jobs:
           host: ${{ secrets.CPANEL_SSH_HOST }}
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd web_proto
             git pull origin main
