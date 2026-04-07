@@ -41,7 +41,7 @@ export default function Team() {
               Profesionales
             </span>
             <h2 className="font-inter tracking-tight" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 0.9, marginBottom: '4rem', color: 'var(--on-background)', letterSpacing: '-0.04em' }}>
-              Equipo de Élite
+              Equipo de Élite.
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
