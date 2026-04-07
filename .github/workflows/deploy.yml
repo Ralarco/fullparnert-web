@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,21 +22,19 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            # Entrar al home del usuario
             cd ~
-            
-            # Si el proyecto no existe, clonarlo. Si existe, actualizarlo.
             if [ ! -d "web_proto/.git" ]; then
               rm -rf web_proto
-              git clone https://github.com/Ralarco/fullparnert-web.git web_proto
+              git clone https://${{ secrets.GH_PAT }}@github.com/Ralarco/fullparnert-web.git web_proto
             else
               cd web_proto
+              git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/Ralarco/fullparnert-web.git
               git pull origin main
             fi
             
-            # Instalar y compilar
             cd ~/web_proto
-            source ~/.bashrc # Carga nvm/node si está instalado
+            [ -f ~/.bashrc ] && source ~/.bashrc
+            export PATH=$PATH:/usr/local/bin
             npm install
             npm run build
             touch tmp/restart.txt
