@@ -14,27 +14,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.CPANEL_SSH_HOST }}
-          username: ${{ secrets.CPANEL_SSH_USER }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            cd ~
-            if [ ! -d "web_proto/.git" ]; then
-              rm -rf web_proto
-              git clone https://${{ secrets.GH_PAT }}@github.com/Ralarco/fullparnert-web.git web_proto
-            else
-              cd web_proto
-              git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/Ralarco/fullparnert-web.git
-              git pull origin main
-            fi
-            
-            cd ~/web_proto
-            [ -f ~/.bashrc ] && source ~/.bashrc
-            export PATH=$PATH:/usr/local/bin
-            npm install
-            npm run build
-            touch tmp/restart.txt
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: out/
+          server-dir: web_proto/
+          dangerous-clean-slate: false
